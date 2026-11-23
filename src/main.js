@@ -17,7 +17,16 @@ const content = {
 const app = document.querySelector('#app');
 app.innerHTML = `
   <main class="page"><div class="sky-glow"></div>
-    <section class="welcome-screen" id="welcome" aria-labelledby="welcome-title"><div class="welcome-card"><div class="welcome-video-wrap"><video id="welcome-video" src="/videos/aira-welcome.mp4" autoplay muted loop playsinline aria-label="Loopy celebrating Aira's birthday"></video><button class="sound-toggle" id="sound-toggle" type="button" aria-label="Turn sound on" title="Turn sound on" aria-pressed="false"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M11 5 6 9H3v6h3l5 4V5z"/><path class="sound-waves" d="M15.5 8.5a5 5 0 0 1 0 7M19 5a10 10 0 0 1 0 14"/><path class="sound-mute" d="m16 9 5 6m0-6-5 6"/></svg></button></div><p class="eyebrow">A little surprise for you</p><h2 id="welcome-title">Aira's birthday world</h2><p>A little world was made just for you, filled with love and tiny friends ready to celebrate.</p><button class="wish-button" id="enter">Enter Aira's world ♡</button></div></section>
+    <section class="fairy-intro" id="fairy-intro" aria-labelledby="fairy-intro-title">
+      <div class="fairy-intro-stage" id="fairy-intro-stage">
+        <h2 id="fairy-intro-title">Happy Birthday, Baby!</h2>
+        <video class="fairy-intro-video" id="fairy-intro-video" src="/videos/introo-peek.mp4" playsinline preload="auto" muted autoplay aria-label="Loopy peeking in for Aira's birthday"></video>
+        <p class="fairy-intro-status" id="fairy-intro-status" role="status" aria-live="polite" hidden></p>
+        <button class="wish-button meet-loopy" id="meet-loopy" type="button" autofocus>I love you ♡</button>
+        <div class="fairy-curtain fairy-curtain-left" aria-hidden="true"></div><div class="fairy-curtain fairy-curtain-right" aria-hidden="true"></div>
+      </div>
+    </section>
+    <section class="welcome-screen" id="welcome" aria-labelledby="welcome-title"><div class="welcome-card"><div class="welcome-video-wrap"><video id="welcome-video" src="/videos/aira-welcome.mp4" muted loop playsinline aria-label="Loopy celebrating Aira's birthday"></video><button class="sound-toggle" id="sound-toggle" type="button" aria-label="Turn sound on" title="Turn sound on" aria-pressed="false"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M11 5 6 9H3v6h3l5 4V5z"/><path class="sound-waves" d="M15.5 8.5a5 5 0 0 1 0 7M19 5a10 10 0 0 1 0 14"/><path class="sound-mute" d="m16 9 5 6m0-6-5 6"/></svg></button></div><p class="eyebrow">A little surprise for you</p><h2 id="welcome-title">Aira's birthday world</h2><p>A little world was made just for you, filled with love and tiny friends ready to celebrate.</p><button class="wish-button" id="enter">Enter Aira's world ♡</button></div></section>
     <header class="topbar"><a class="brand" href="#">♡ <span>Aira's little world</span></a><span class="today">A day made for you <span>✦</span></span></header>
     <section class="hero"><p class="eyebrow">✦ &nbsp; A little world, just for you &nbsp; ✦</p><h1>Happy Birthday,<br><em>Aira!</em></h1>
       <p class="intro">A tiny floating garden filled with love, wishes, and little friends who can't wait to celebrate you.</p>
@@ -30,6 +39,7 @@ app.innerHTML = `
     <footer>Made with <span>♡</span> for Aira</footer>
     <dialog id="modal" aria-labelledby="modal-title"><button class="close" aria-label="Close">×</button><p class="eyebrow">A little birthday magic</p><h2 id="modal-title"></h2><div id="modal-content"></div></dialog>
   </main>`;
+const welcomeScreen=document.querySelector('#welcome');welcomeScreen.inert=true;
 
 const scene = new THREE.Scene(); scene.background = new THREE.Color('#fff5f8'); scene.fog = new THREE.Fog('#fff5f8', 13, 27);
 const camera = new THREE.PerspectiveCamera(35, 1, .1, 100); camera.position.set(0, 4.8, 10.8);const homeCameraPosition=camera.position.clone(),cameraLookTarget=new THREE.Vector3(0,-.45,0),homeCameraLookTarget=cameraLookTarget.clone();camera.lookAt(cameraLookTarget);
@@ -64,7 +74,7 @@ const npcActions=[['wish','MAKE A WISH'],['letter','LETTER'],['flower','FLOWER']
 const npcHomes=[[-2.55,1.55],[-1.65,2.15],[1.65,2.15],[2.55,1.55],[0,-2.5]];
 const npcStartAngles=[2.48,2.11,1.03,.67,4.71];
 const npcImages=[{src:eddyImage,background:'white'},null,{src:penguinImage,background:'white'},{src:pettyImage,background:'green'},{src:loopyImage,background:'checker'}];
-function addNpcSprite(parent,src,background,facePhoto=false){
+function addNpcSprite(parent,src,background,facePhoto=false,onCutout){
  const image=new Image();
  image.onload=()=>{
   const w=image.naturalWidth,h=image.naturalHeight,canvas=document.createElement('canvas'),ctx=canvas.getContext('2d',{willReadFrequently:true});canvas.width=w;canvas.height=h;ctx.drawImage(image,0,0);
@@ -74,7 +84,7 @@ function addNpcSprite(parent,src,background,facePhoto=false){
   for(let x=0;x<w;x++){add(x);add((h-1)*w+x);}for(let y=1;y<h-1;y++){add(y*w);add(y*w+w-1);}
   while(head<tail){const i=queue[head++],x=i%w;if(x)add(i-1);if(x<w-1)add(i+1);if(i>=w)add(i-w);if(i<(h-1)*w)add(i+w);}
   let left=w,top=h,right=0,bottom=0;for(let i=0;i<seen.length;i++){if(seen[i])data[i*4+3]=0;if(data[i*4+3]>8){const x=i%w,y=(i-x)/w;left=Math.min(left,x);right=Math.max(right,x);top=Math.min(top,y);bottom=Math.max(bottom,y);}}
-  ctx.putImageData(pixels,0,0);const cutout=document.createElement('canvas');cutout.width=right-left+1;cutout.height=bottom-top+1;cutout.getContext('2d').drawImage(canvas,left,top,cutout.width,cutout.height,0,0,cutout.width,cutout.height);
+  ctx.putImageData(pixels,0,0);const cutout=document.createElement('canvas');cutout.width=right-left+1;cutout.height=bottom-top+1;cutout.getContext('2d').drawImage(canvas,left,top,cutout.width,cutout.height,0,0,cutout.width,cutout.height);onCutout?.(cutout);
   const texture=new THREE.CanvasTexture(cutout);texture.colorSpace=THREE.SRGBColorSpace;
   if(facePhoto){const photo=new Image();photo.onload=()=>{const ctx=cutout.getContext('2d'),cx=cutout.width*.49,cy=cutout.height*.41,r=cutout.width*.23,side=Math.min(photo.naturalWidth*.5,photo.naturalHeight*.42),sx=0,sy=photo.naturalHeight*.17;ctx.save();ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);ctx.clip();ctx.drawImage(photo,sx,sy,side,side,cx-r,cy-r,r*2,r*2);ctx.restore();ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);ctx.strokeStyle='#fff5f8';ctx.lineWidth=8;ctx.stroke();texture.needsUpdate=true;};photo.src=airaPhoto;}
   const height=1.22,mesh=new THREE.Mesh(new THREE.PlaneGeometry(height*cutout.width/cutout.height,height),new THREE.MeshBasicMaterial({map:texture,transparent:true,alphaTest:.04,side:THREE.DoubleSide,depthWrite:false}));mesh.position.y=height/2;mesh.userData.npcSprite=true;parent.add(mesh);
@@ -94,7 +104,7 @@ function addActionCard(parent,label,offset,cardY){
 for(let i=0;i<npcTypes.length;i++){
  const type=npcTypes[i],g=new THREE.Group(),color=mat(npcColors[i]);island.add(g);
  const home=npcHomes[i];g.position.set(home[0],.25,home[1]);
- if(npcImages[i])addNpcSprite(g,npcImages[i].src,npcImages[i].background,type==='loopy');
+ if(npcImages[i])addNpcSprite(g,npcImages[i].src,npcImages[i].background,type==='loopy',type==='loopy'?cutout=>document.querySelector('#fairy-loopy').src=cutout.toDataURL('image/png'):undefined);
  else{
   blob(new THREE.SphereGeometry(.25,16,12),color,0,.34,0,1,1.12,.92,g);blob(new THREE.SphereGeometry(.26,16,12),color,0,.7,0,1,1,.93,g);
   for(const x of [-.09,.09]){blob(new THREE.SphereGeometry(.095,12,10),white,x,.91,.1,1,1,1,g);blob(new THREE.SphereGeometry(.034,10,8),mat('#49383d'),x,.93,.19,1,1,1,g);}
@@ -109,8 +119,16 @@ const reducedMotion=matchMedia('(prefers-reduced-motion: reduce)').matches;
 let islandRotation=0,worldStartedAt=null;
 function resize(){if(!renderer)return;const box=document.querySelector('.scene').getBoundingClientRect();renderer.setSize(box.width,box.height,false);camera.aspect=box.width/box.height;camera.updateProjectionMatrix();renderer.setPixelRatio(Math.min(devicePixelRatio,2));}
 if(renderer){new ResizeObserver(resize).observe(document.querySelector('.scene'));resize();function animate(){requestAnimationFrame(animate);const now=performance.now(),t=reducedMotion||worldStartedAt===null?0:(now-worldStartedAt)/1000,progress=cakeMoment.phase==='gathering'?Math.min(1,(now-cakeMoment.started)/2400):cakeMoment.phase==='idle'?0:1,ease=progress*progress*(3-2*progress);island.position.y=Math.sin(t*.6)*.08;island.rotation.y=islandRotation+Math.sin(t*.19)*.025;if(cakeMoment.phase!=='idle'){cake.position.y=THREE.MathUtils.lerp(cake.userData.startY,2.05,ease);camera.position.lerpVectors(cakeMoment.cameraFrom,cakeMoment.cameraTo,ease);cameraLookTarget.lerpVectors(cakeMoment.lookFrom,cakeMoment.lookTo,ease);if(progress===1&&cakeMoment.phase==='gathering'){cakeMoment.phase='ready';document.querySelector('#cake-prompt').hidden=false;}}npcs.forEach((n,i)=>{const {phase,action}=n.userData;if(cakeMoment.phase==='idle'){const w=t*(action?.12:.18)+phase;n.position.set(Math.cos(w)*(action?3:2.65),.25+Math.abs(Math.sin(t*2+phase))*.09,Math.sin(w)*(action?2.25:2.05));}else{const a=i/npcs.length*Math.PI*2;n.position.lerpVectors(cakeMoment.fromPositions[i],new THREE.Vector3(Math.cos(a)*1.02,.58,-.3+Math.sin(a)*.88),ease);}n.rotation.y=0;n.rotation.z=Math.sin(t*2+phase)*.06;const card=n.children.find(child=>child.userData.actionCard);if(card){card.scale.setScalar(1-.58*ease);card.lookAt(camera.position);}n.children.find(child=>child.userData.npcSprite)?.lookAt(camera.position);});scene.children.filter(o=>o.userData.phase!==undefined).forEach(s=>{s.rotation.y=t*.45;s.position.y=s.userData.baseY+Math.sin(t*1.4+s.userData.phase)*.08;});clouds.forEach(c=>{c.position.y=c.userData.baseY+Math.sin(t*.45+c.userData.phase)*.14;c.position.x=c.userData.baseX+Math.sin(t*.12+c.userData.phase)*.3;});camera.lookAt(cameraLookTarget);renderer.render(scene,camera);}animate();}
+const fairyIntro=document.querySelector('#fairy-intro'),fairyStage=document.querySelector('#fairy-intro-stage'),meetLoopy=document.querySelector('#meet-loopy'),fairyStatus=document.querySelector('#fairy-intro-status'),fairyIntroVideo=document.querySelector('#fairy-intro-video'),welcomeVideo=document.querySelector('#welcome-video');welcomeVideo.pause();fairyIntroVideo.muted=true;
+let introGreetingStarted=false;
+function showFairyAudioRetry(){fairyIntroVideo.pause();fairyIntroVideo.currentTime=0;fairyStage.classList.remove('playing');fairyStatus.textContent="Loopy's intro couldn't play. Tap to try again.";fairyStatus.hidden=false;meetLoopy.hidden=false;meetLoopy.disabled=false;meetLoopy.textContent='Try again ✨';}
+function setWelcomeSound(enabled){welcomeVideo.muted=!enabled;const button=document.querySelector('#sound-toggle'),label=welcomeVideo.muted?'Turn sound on':'Mute sound';button.setAttribute('aria-label',label);button.title=label;button.setAttribute('aria-pressed',String(!welcomeVideo.muted));}
+function revealWelcome(){fairyStage.classList.add('closing');const curtainTime=reducedMotion?30:850;setTimeout(()=>{welcomeScreen.inert=false;setWelcomeSound(true);welcomeVideo.play().catch(()=>setWelcomeSound(false));fairyStage.classList.add('opening');},curtainTime);setTimeout(()=>{fairyIntro.hidden=true;document.querySelector('#enter').focus({preventScroll:true});},curtainTime*2+40);}
+fairyIntroVideo.addEventListener('timeupdate',()=>{if(!introGreetingStarted&&fairyIntroVideo.currentTime>1.4)fairyIntroVideo.currentTime=0;});
+fairyIntroVideo.addEventListener('ended',revealWelcome,{once:true});fairyIntroVideo.addEventListener('error',showFairyAudioRetry);
+meetLoopy.addEventListener('click',()=>{fairyStatus.hidden=true;meetLoopy.disabled=true;fairyStage.classList.add('playing');introGreetingStarted=true;fairyIntroVideo.muted=false;fairyIntroVideo.currentTime=0;fairyIntroVideo.play().then(()=>{meetLoopy.hidden=true;}).catch(showFairyAudioRetry);});
 document.querySelector('#sound-toggle').addEventListener('click',e=>{const video=document.querySelector('#welcome-video');video.muted=!video.muted;const label=video.muted?'Turn sound on':'Mute sound';e.currentTarget.setAttribute('aria-label',label);e.currentTarget.title=label;e.currentTarget.setAttribute('aria-pressed',String(!video.muted));});
-document.querySelector('#enter').addEventListener('click',()=>{document.querySelector('#welcome-video').pause();worldStartedAt??=performance.now();document.querySelector('#welcome').classList.add('dismissed');});
+document.querySelector('#enter').addEventListener('click',()=>{document.querySelector('#welcome-video').pause();worldStartedAt??=performance.now();welcomeScreen.classList.add('dismissed');});
 
 const raycaster=new THREE.Raycaster(),pointer=new THREE.Vector2(),canvas=document.querySelector('#world');let drag;
 if(renderer){
